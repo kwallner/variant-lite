@@ -23,7 +23,7 @@ project( variant_lite LANGUAGES CXX VERSION ${variant_lite_version})
 
 include( GNUInstallDirs )
 
-set( package_name "variant-lite" )
+set( package_name "variant_lite" )
 
 # Interface library:
 
