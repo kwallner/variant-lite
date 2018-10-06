@@ -19,7 +19,7 @@ option( VARIANT_LITE_OPT_BUILD_EXAMPLES "Build variant-lite examples" OFF )
 option( VARIANT_LITE_OPT_SELECT_STD     "Select std::variant"    OFF )
 option( VARIANT_LITE_OPT_SELECT_NONSTD  "Select nonstd::variant" OFF )
 
-project( variant_lite LANGUAGES CXX )
+project( variant_lite LANGUAGES CXX VERSION ${variant_lite_version})
 
 include( GNUInstallDirs )
 
@@ -31,7 +31,7 @@ add_library(
     ${package_name} INTERFACE )
     
 target_include_directories( 
-    ${package_name} INTERFACE "$<BUILD_INTERFACE:${include_source_dir}>" )
+    ${package_name} INTERFACE "$<BUILD_INTERFACE:${include_source_dir}>" "$<INSTALL_INTERFACE:include>")
 
 # Installation:
 
@@ -49,5 +49,42 @@ endif()
 if ( VARIANT_LITE_OPT_BUILD_EXAMPLES )
     add_subdirectory( example )
 endif()
+
+#
+# Create Config Files
+#
+install(TARGETS ${package_name}
+    EXPORT Targets
+    INCLUDES DESTINATION include
+    )
+
+install(EXPORT Targets
+    FILE ${PROJECT_NAME}Targets.cmake
+    DESTINATION share/cmake/${PROJECT_NAME}
+    )
+
+#
+# Export Library
+#
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMinorVersion
+    )
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/script/LibraryConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    @ONLY
+    )
+
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    DESTINATION
+        . # Root Directory
+    )
 
 # end of file
